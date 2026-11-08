@@ -1,0 +1,380 @@
+<views:ThemedWindow x:Class="CoffeeExplorer.MainWindow"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:views="clr-namespace:CoffeeExplorer.Views"
+                    xmlns:services="clr-namespace:CoffeeExplorer.Services"
+                    xmlns:l="clr-namespace:CoffeeExplorer.Services"
+                    xmlns:vm="clr-namespace:CoffeeExplorer.ViewModels"
+                    Title="{Binding WindowTitle}" Width="1360" Height="860" MinWidth="760" MinHeight="460"
+                    AllowDrop="True" Drop="OnDrop" DragOver="OnDragOver" DragEnter="OnDragOver" DragLeave="OnDragLeave">
+
+    <Window.Resources>
+        <DataTemplate x:Key="TabHeader" DataType="{x:Type vm:DocumentViewModel}">
+            <StackPanel Orientation="Horizontal" ToolTip="{Binding ToolTip}" Background="Transparent">
+                <StackPanel.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="{l:Tr 'Save'}" Command="{Binding Main.SaveCommand}" InputGestureText="Ctrl+S" />
+                        <MenuItem Header="{l:Tr 'Close'}" Command="{Binding Main.CloseCommand}" CommandParameter="{Binding}" InputGestureText="Ctrl+W" />
+                        <MenuItem Header="{l:Tr 'Close all but this'}" Command="{Binding Main.CloseOthersCommand}" CommandParameter="{Binding}" />
+                        <Separator />
+                        <MenuItem Header="{l:Tr 'Copy full path'}" Click="OnCopyPath" />
+                        <MenuItem Header="{l:Tr 'Open containing folder'}" Click="OnOpenFolder" />
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
+                <Image views:IconSource.Key="{Binding IconKey}" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                <TextBlock Text="{Binding FileName}" VerticalAlignment="Center" MaxWidth="240" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{l:Tr '(read only)'}" Margin="4,0,0,0" Foreground="{DynamicResource Brush.Text.Muted}" VerticalAlignment="Center"
+                           Visibility="{Binding IsReadOnly, Converter={StaticResource BoolToVisibility}}" />
+                <Ellipse Width="6" Height="6" Margin="6,0,0,0" Fill="{DynamicResource Brush.Text.Foreground}" VerticalAlignment="Center" ToolTip="{l:Tr 'Unsaved changes'}"
+                         Visibility="{Binding IsModified, Converter={StaticResource BoolToVisibility}}" />
+                <Button Style="{StaticResource Button.Tool}" Margin="4,0,0,0" Padding="2" MinWidth="18" MinHeight="18" ToolTip="{l:Tr 'Close (Ctrl+W)'}"
+                        Command="{Binding DataContext.CloseCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">
+                    <Image Source="{DynamicResource Icon.Close}" Width="12" Height="12" />
+                </Button>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- Inside a document tab. Structure tree, splitter, view of the selected node. -->
+        <DataTemplate x:Key="DocumentContent" DataType="{x:Type vm:DocumentViewModel}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{Binding DataContext.TreeWidth, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" MinWidth="160" />
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="*" MinWidth="300" />
+                </Grid.ColumnDefinitions>
+                <TreeView ItemsSource="{Binding Nodes}" views:TreeSelection.Command="{Binding SelectCommand}" BorderBrush="{DynamicResource Brush.Panel.Border}" BorderThickness="0,0,1,0">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                            <Setter Property="views:TreeSelection.BringIntoView" Value="True" />
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type vm:TreeNodeViewModel}" ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal" Background="Transparent">
+                                <Image views:IconSource.Key="{Binding IconKey}" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                                <TextBlock Text="{Binding Name}" FontWeight="{Binding IsHeading, Converter={StaticResource BoolToBold}}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+                <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" ResizeDirection="Columns" Background="{DynamicResource Brush.Panel.Background}" />
+                <ContentControl Grid.Column="2" Content="{Binding Content}" Focusable="False" Background="{DynamicResource Brush.Editor.Background}"
+                                Foreground="{DynamicResource Brush.Text.Foreground}" />
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Window.InputBindings>
+        <KeyBinding Gesture="Ctrl+O" Command="{Binding OpenCommand}" />
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}" />
+        <KeyBinding Gesture="Ctrl+Shift+S" Command="{Binding SaveAsCommand}" />
+        <KeyBinding Gesture="Ctrl+W" Command="{Binding CloseCommand}" />
+        <KeyBinding Gesture="Ctrl+F4" Command="{Binding CloseCommand}" />
+        <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}" />
+        <KeyBinding Gesture="Ctrl+Y" Command="{Binding RedoCommand}" />
+        <KeyBinding Gesture="Ctrl+Shift+Z" Command="{Binding RedoCommand}" />
+        <KeyBinding Gesture="Ctrl+G" Command="{Binding GoToOffsetCommand}" />
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
+        <KeyBinding Gesture="Ctrl+D1" Command="{Binding ShowNodeCommand}" CommandParameter="tool.address" />
+        <KeyBinding Gesture="Ctrl+D2" Command="{Binding ShowNodeCommand}" CommandParameter="tool.dependencies" />
+        <KeyBinding Gesture="Ctrl+D3" Command="{Binding ShowNodeCommand}" CommandParameter="tool.hex" />
+        <KeyBinding Gesture="Ctrl+D4" Command="{Binding ShowNodeCommand}" CommandParameter="tool.die" />
+        <KeyBinding Gesture="Ctrl+D5" Command="{Binding ShowNodeCommand}" CommandParameter="tool.importadder" />
+        <KeyBinding Gesture="Ctrl+D6" Command="{Binding ShowNodeCommand}" CommandParameter="tool.disassembler" />
+        <KeyBinding Gesture="Ctrl+D7" Command="{Binding ShowNodeCommand}" CommandParameter="tool.rebuilder" />
+        <KeyBinding Gesture="Ctrl+D8" Command="{Binding ShowNodeCommand}" CommandParameter="tool.resources" />
+    </Window.InputBindings>
+
+    <Grid>
+        <DockPanel>
+            <!-- Menu. -->
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="{l:Tr '_File'}">
+                    <MenuItem Header="{l:Tr '_Open...'}" Command="{Binding OpenCommand}" InputGestureText="Ctrl+O">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.OpenFile}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr 'Open read _only...'}" Command="{Binding OpenReadOnlyCommand}">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.Lock}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr 'Open _recent'}" ItemsSource="{Binding RecentFiles}" IsEnabled="{Binding RecentFiles.Count, Converter={StaticResource CountToBool}}">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.History}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                                <Setter Property="Header" Value="{Binding}" />
+                                <Setter Property="Command" Value="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <Setter Property="CommandParameter" Value="{Binding}" />
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem Header="{l:Tr '_Save'}" Command="{Binding SaveCommand}" InputGestureText="Ctrl+S">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.Save}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr 'Save _as...'}" Command="{Binding SaveAsCommand}" InputGestureText="Ctrl+Shift+S">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.SaveAs}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr 'Re_load'}" Command="{Binding ReloadCommand}">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.Refresh}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem Header="{l:Tr '_Close'}" Command="{Binding CloseCommand}" InputGestureText="Ctrl+W">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.CloseDocument}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr 'Close a_ll'}" Command="{Binding CloseAllCommand}">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.CloseAll}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem Header="{l:Tr 'Clear recent files'}" Command="{Binding ClearRecentCommand}" />
+                    <Separator />
+                    <MenuItem Header="{l:Tr 'E_xit'}" Command="{Binding ExitCommand}" InputGestureText="Alt+F4">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.Exit}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="{l:Tr '_Edit'}">
+                    <MenuItem Header="{l:Tr '_Undo'}" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.Undo}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr '_Redo'}" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.Redo}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem Header="{l:Tr '_Go to offset...'}" Command="{Binding GoToOffsetCommand}" InputGestureText="Ctrl+G">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.GoToCurrentLine}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="{l:Tr '_View'}">
+                    <MenuItem Header="{l:Tr 'Toolbar'}" Command="{Binding ToggleToolbarCommand}" IsChecked="{Binding IsToolbarVisible, Mode=OneWay}" />
+                    <MenuItem Header="{l:Tr 'Status bar'}" Command="{Binding ToggleStatusBarCommand}" IsChecked="{Binding IsStatusBarVisible, Mode=OneWay}" />
+                    <Separator />
+                    <MenuItem Header="{l:Tr 'Theme'}" ItemsSource="{Binding ThemeChoices}">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.DarkTheme}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                        <!-- System, Light, Dark and the VS Code themes of the themes folder next to the program. -->
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                                <Setter Property="Header" Value="{Binding Label}" />
+                                <Setter Property="Command" Value="{Binding DataContext.SetThemeCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <Setter Property="CommandParameter" Value="{Binding}" />
+                                <Setter Property="IsChecked" Value="{Binding IsChecked, Mode=OneWay}" />
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem Header="{l:Tr '_Refresh'}" Command="{Binding RefreshCommand}" InputGestureText="F5">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.Refresh}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="{l:Tr '_Tools'}">
+                    <MenuItem Header="{l:Tr '_Address Converter'}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.address" InputGestureText="Ctrl+1">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.Calculator}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr '_Dependency Walker'}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.dependencies" InputGestureText="Ctrl+2">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.DependencyMatrix}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr '_Hex Editor'}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.hex" InputGestureText="Ctrl+3">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.Binary}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr 'Detect It _Easy'}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.die" InputGestureText="Ctrl+4">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.Inspect}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr '_Import Adder'}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.importadder" InputGestureText="Ctrl+5">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.Add}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr 'Di_sassembler'}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.disassembler" InputGestureText="Ctrl+6">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.DisassemblyWindow}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr '_Rebuilder'}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.rebuilder" InputGestureText="Ctrl+7">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.BuildSolution}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr 'Resource Ed_itor'}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.resources" InputGestureText="Ctrl+8">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.ResourceView}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem Header="{l:Tr '&quot;Open with Coffee Explorer&quot; in Explorer'}" Command="{Binding ToggleShellCommand}" IsChecked="{Binding IsShellRegistered, Mode=OneWay}">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.ContextMenu}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{l:Tr '_Options...'}" Command="{Binding OptionsCommand}">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.Settings}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="{l:Tr '_Help'}">
+                    <MenuItem Header="{l:Tr '_About Coffee Explorer'}" Command="{Binding AboutCommand}">
+                        <MenuItem.Icon>
+                            <Image Source="{DynamicResource Icon.AboutBox}" Style="{StaticResource Icon}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
+
+            <!-- Toolbar. -->
+            <Border DockPanel.Dock="Top" Background="{DynamicResource Brush.Window.Background}" BorderBrush="{DynamicResource Brush.Panel.Border}" BorderThickness="0,0,0,1"
+                    Padding="6,3" Visibility="{Binding IsToolbarVisible, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{StaticResource Button.Tool}" Command="{Binding OpenCommand}" ToolTip="{l:Tr 'Open (Ctrl+O)'}">
+                        <Image Source="{DynamicResource Icon.OpenFile}" Style="{StaticResource Icon}" />
+                    </Button>
+                    <Button Style="{StaticResource Button.Tool}" Command="{Binding SaveCommand}" ToolTip="{l:Tr 'Save (Ctrl+S)'}">
+                        <Image Source="{DynamicResource Icon.Save}" Style="{StaticResource Icon}" />
+                    </Button>
+                    <Button Style="{StaticResource Button.Tool}" Command="{Binding SaveAsCommand}" ToolTip="{l:Tr 'Save as (Ctrl+Shift+S)'}">
+                        <Image Source="{DynamicResource Icon.SaveAs}" Style="{StaticResource Icon}" />
+                    </Button>
+                    <Separator Style="{StaticResource Toolbar.Separator}" />
+                    <Button Style="{StaticResource Button.Tool}" Command="{Binding UndoCommand}" ToolTip="{l:Tr 'Undo (Ctrl+Z)'}">
+                        <Image Source="{DynamicResource Icon.Undo}" Style="{StaticResource Icon}" />
+                    </Button>
+                    <Button Style="{StaticResource Button.Tool}" Command="{Binding RedoCommand}" ToolTip="{l:Tr 'Redo (Ctrl+Y)'}">
+                        <Image Source="{DynamicResource Icon.Redo}" Style="{StaticResource Icon}" />
+                    </Button>
+                    <Separator Style="{StaticResource Toolbar.Separator}" />
+                    <Button Style="{StaticResource Button.Tool}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.address" ToolTip="{l:Tr 'Address Converter (Ctrl+1)'}">
+                        <Image Source="{DynamicResource Icon.Calculator}" Style="{StaticResource Icon}" />
+                    </Button>
+                    <Button Style="{StaticResource Button.Tool}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.dependencies" ToolTip="{l:Tr 'Dependency Walker (Ctrl+2)'}">
+                        <Image Source="{DynamicResource Icon.DependencyMatrix}" Style="{StaticResource Icon}" />
+                    </Button>
+                    <Button Style="{StaticResource Button.Tool}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.hex" ToolTip="{l:Tr 'Hex Editor (Ctrl+3)'}">
+                        <Image Source="{DynamicResource Icon.Binary}" Style="{StaticResource Icon}" />
+                    </Button>
+                    <Button Style="{StaticResource Button.Tool}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.die" ToolTip="{l:Tr 'Detect It Easy (Ctrl+4)'}">
+                        <Image Source="{DynamicResource Icon.Inspect}" Style="{StaticResource Icon}" />
+                    </Button>
+                    <Button Style="{StaticResource Button.Tool}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.importadder" ToolTip="{l:Tr 'Import Adder (Ctrl+5)'}">
+                        <Image Source="{DynamicResource Icon.Add}" Style="{StaticResource Icon}" />
+                    </Button>
+                    <Button Style="{StaticResource Button.Tool}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.disassembler" ToolTip="{l:Tr 'Disassembler (Ctrl+6)'}">
+                        <Image Source="{DynamicResource Icon.DisassemblyWindow}" Style="{StaticResource Icon}" />
+                    </Button>
+                    <Button Style="{StaticResource Button.Tool}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.rebuilder" ToolTip="{l:Tr 'Rebuilder (Ctrl+7)'}">
+                        <Image Source="{DynamicResource Icon.BuildSolution}" Style="{StaticResource Icon}" />
+                    </Button>
+                    <Button Style="{StaticResource Button.Tool}" Command="{Binding ShowNodeCommand}" CommandParameter="tool.resources" ToolTip="{l:Tr 'Resource Editor (Ctrl+8)'}">
+                        <Image Source="{DynamicResource Icon.ResourceView}" Style="{StaticResource Icon}" />
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Status bar. -->
+            <Border DockPanel.Dock="Bottom" Height="24" Background="{DynamicResource Brush.StatusBar.Background}" BorderBrush="{DynamicResource Brush.StatusBar.Border}" BorderThickness="0,1,0,0"
+                    Visibility="{Binding IsStatusBarVisible, Converter={StaticResource BoolToVisibility}}" TextElement.Foreground="{DynamicResource Brush.StatusBar.Foreground}">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <TextBlock Text="{Binding ActiveDocument.FocusText}" VerticalAlignment="Center" Margin="12,0" FontFamily="{StaticResource Font.Mono}" />
+                        <TextBlock Text="{Binding ActiveDocument.FileTypeText}" VerticalAlignment="Center" Margin="12,0" />
+                        <TextBlock Text="{l:Tr 'Modified'}" VerticalAlignment="Center" Margin="12,0" Visibility="{Binding ActiveDocument.IsModified, Converter={StaticResource BoolToVisibility}, FallbackValue=Collapsed}" />
+                        <TextBlock Text="{l:Tr 'Read only'}" VerticalAlignment="Center" Margin="12,0" Visibility="{Binding ActiveDocument.IsReadOnly, Converter={StaticResource BoolToVisibility}, FallbackValue=Collapsed}" />
+                        <Button Style="{StaticResource StatusBar.Item}" Command="{Binding OptionsCommand}" ToolTip="{l:Tr 'Theme, click for the options'}">
+                            <TextBlock Text="{Binding ThemeText}" />
+                        </Button>
+                    </StackPanel>
+                    <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Margin="10,0" TextTrimming="CharacterEllipsis" />
+                </DockPanel>
+            </Border>
+
+            <!-- Documents. -->
+            <Grid>
+                <TabControl x:Name="DocumentTabs" Style="{StaticResource TabControl.Document}" ItemContainerStyle="{StaticResource TabItem.Document}"
+                            ItemsSource="{Binding Documents}" SelectedItem="{Binding ActiveDocument}" ItemTemplate="{StaticResource TabHeader}"
+                            ContentTemplate="{StaticResource DocumentContent}"
+                            Visibility="{Binding HasDocument, Converter={StaticResource BoolToVisibility}}" />
+
+                <!-- Start page. -->
+                <Grid Background="{DynamicResource Brush.Editor.Background}" Visibility="{Binding HasDocument, Converter={StaticResource BoolToCollapsed}}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="560" Margin="24">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Image Source="{StaticResource Image.AppLogo}" Width="48" Height="48" Margin="0,0,14,0" />
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Coffee Explorer" FontSize="24" FontWeight="SemiBold" />
+                                <TextBlock Text="{l:Tr 'Portable Executable editor'}" Foreground="{DynamicResource Brush.Text.Muted}" />
+                            </StackPanel>
+                        </StackPanel>
+                        <TextBlock Text="{l:Tr 'Open an .exe, .dll, .sys or any other PE file, or drop files on this window.'}" Foreground="{DynamicResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,8,0,16" />
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                            <Button Style="{StaticResource Button.Accent}" Command="{Binding OpenCommand}" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{DynamicResource Icon.OpenFile}" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                                    <TextBlock Text="{l:Tr 'Open file...'}" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding OptionsCommand}" Content="{l:Tr 'Options...'}" />
+                        </StackPanel>
+                        <TextBlock Text="{l:Tr 'Recent files'}" FontWeight="SemiBold" Margin="0,0,0,6" Visibility="{Binding RecentFiles.Count, Converter={StaticResource CountToVisibility}}" />
+                        <ItemsControl ItemsSource="{Binding RecentFiles}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource Button.Tool}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="6,4"
+                                            Command="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" ToolTip="{Binding}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="{DynamicResource Icon.BinaryFile}" Style="{StaticResource Icon}" Margin="0,0,8,0" />
+                                            <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" MaxWidth="480" />
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </DockPanel>
+
+        <!-- Drop target shown while files are dragged over the window. -->
+        <Border x:Name="DropOverlay" Visibility="Collapsed" Background="{DynamicResource Brush.Editor.Selection}" BorderBrush="{DynamicResource Brush.Accent.Background}" BorderThickness="2" IsHitTestVisible="False">
+            <Border Background="{DynamicResource Brush.Widget.Background}" BorderBrush="{DynamicResource Brush.Widget.Border}" BorderThickness="1" CornerRadius="6" Padding="24,16"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="{DynamicResource Icon.OpenFile}" Width="24" Height="24" Margin="0,0,12,0" />
+                    <TextBlock Text="{l:Tr 'Drop to open'}" FontSize="16" VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</views:ThemedWindow>

@@ -1,0 +1,6 @@
+out/
+bin/
+obj/
+.vs/
+__pycache__/
+*.user

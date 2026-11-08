@@ -1,0 +1,83 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="Color.Disasm.Text">#FFC0C0C0</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Text" Color="#FFC0C0C0" />
+    <Color x:Key="Color.Disasm.Mnemonic">#FFB4B4B4</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Mnemonic" Color="#FFB4B4B4" />
+    <Color x:Key="Color.Disasm.PushPop">#FF2B91AF</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.PushPop" Color="#FF2B91AF" />
+    <Color x:Key="Color.Disasm.Call">#FFDCDCAA</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Call" Color="#FFDCDCAA" />
+    <Color x:Key="Color.Disasm.Ret">#FFD8A0DF</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Ret" Color="#FFD8A0DF" />
+    <Color x:Key="Color.Disasm.ConditionalJump">#FF9CDCFE</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.ConditionalJump" Color="#FF9CDCFE" />
+    <Color x:Key="Color.Disasm.UnconditionalJump">#FF569CD6</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.UnconditionalJump" Color="#FF569CD6" />
+    <Color x:Key="Color.Disasm.Nop">#FF808080</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Nop" Color="#FF808080" />
+    <Color x:Key="Color.Disasm.Far">#FF808080</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Far" Color="#FF808080" />
+    <Color x:Key="Color.Disasm.Int3">#FF6A6A6A</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Int3" Color="#FF6A6A6A" />
+    <Color x:Key="Color.Disasm.Unusual">#FFFF0000</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Unusual" Color="#FFFF0000" />
+    <Color x:Key="Color.Disasm.Prefix">#FFB4B4B4</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Prefix" Color="#FFB4B4B4" />
+    <Color x:Key="Color.Disasm.GeneralRegister">#FF73ADAD</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.GeneralRegister" Color="#FF73ADAD" />
+    <Color x:Key="Color.Disasm.FpuRegister">#FFBEB7FF</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.FpuRegister" Color="#FFBEB7FF" />
+    <Color x:Key="Color.Disasm.MmxRegister">#FFBEB7FF</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.MmxRegister" Color="#FFBEB7FF" />
+    <Color x:Key="Color.Disasm.XmmRegister">#FFBEB7FF</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.XmmRegister" Color="#FFBEB7FF" />
+    <Color x:Key="Color.Disasm.YmmRegister">#FFBEB7FF</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.YmmRegister" Color="#FFBEB7FF" />
+    <Color x:Key="Color.Disasm.ZmmRegister">#FFBEB7FF</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.ZmmRegister" Color="#FFBEB7FF" />
+    <Color x:Key="Color.Disasm.SegmentRegister">#FFBCBAAF</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.SegmentRegister" Color="#FFBCBAAF" />
+    <Color x:Key="Color.Disasm.Value">#FFD69D85</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Value" Color="#FFD69D85" />
+    <Color x:Key="Color.Disasm.Address">#FFFFD68F</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Address" Color="#FFFFD68F" />
+    <Color x:Key="Color.Disasm.MemorySize">#FFABABAB</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.MemorySize" Color="#FFABABAB" />
+    <Color x:Key="Color.Disasm.MemoryBrackets">#FFC0C0C0</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.MemoryBrackets" Color="#FFC0C0C0" />
+    <Color x:Key="Color.Disasm.MemoryStackBrackets">#FFC0C0C0</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.MemoryStackBrackets" Color="#FFC0C0C0" />
+    <Color x:Key="Color.Disasm.MemoryBaseRegister">#FF4EC9B0</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.MemoryBaseRegister" Color="#FF4EC9B0" />
+    <Color x:Key="Color.Disasm.MemoryIndexRegister">#FF4EC9B0</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.MemoryIndexRegister" Color="#FF4EC9B0" />
+    <Color x:Key="Color.Disasm.MemoryScale">#FFB5CEA8</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.MemoryScale" Color="#FFB5CEA8" />
+    <Color x:Key="Color.Disasm.MemoryOperator">#FFC0C0C0</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.MemoryOperator" Color="#FFC0C0C0" />
+    <Color x:Key="Color.Disasm.Comma">#FFC0C0C0</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Comma" Color="#FFC0C0C0" />
+    <Color x:Key="Color.Disasm.Decorator">#FFFFFFFF</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Decorator" Color="#FFFFFFFF" />
+    <Color x:Key="Color.Disasm.MaskRegister">#FF73ADAD</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.MaskRegister" Color="#FF73ADAD" />
+    <Color x:Key="Color.Disasm.Column.Address">#FF858889</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Column.Address" Color="#FF858889" />
+    <Color x:Key="Color.Disasm.Column.Bytes">#FF9A9A9A</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Column.Bytes" Color="#FF9A9A9A" />
+    <Color x:Key="Color.Disasm.Column.Label">#FF57A64A</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Column.Label" Color="#FF57A64A" />
+    <Color x:Key="Color.Disasm.Column.Comment">#FF6A8759</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Column.Comment" Color="#FF6A8759" />
+    <Color x:Key="Color.Disasm.Column.Cip">#FFFFFFFF</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Column.Cip" Color="#FFFFFFFF" />
+    <Color x:Key="Color.Disasm.Column.CipBackground">#FF297AA0</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Column.CipBackground" Color="#FF297AA0" />
+    <Color x:Key="Color.Disasm.Column.JumpLine">#FF569CD6</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Column.JumpLine" Color="#FF569CD6" />
+    <Color x:Key="Color.Disasm.Column.ConditionalJumpLine">#FF57A64A</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Column.ConditionalJumpLine" Color="#FF57A64A" />
+    <Color x:Key="Color.Disasm.Column.CallLine">#FFDCDCAA</Color>
+    <SolidColorBrush x:Key="Brush.Disasm.Column.CallLine" Color="#FFDCDCAA" />
+</ResourceDictionary>

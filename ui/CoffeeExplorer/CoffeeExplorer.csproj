@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>12</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64</Platforms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>CoffeeExplorer.ico</ApplicationIcon>
+    <AssemblyName>CoffeeExplorer</AssemblyName>
+    <RootNamespace>CoffeeExplorer</RootNamespace>
+    <Version>1.0.0</Version>
+    <Product>Coffee Explorer</Product>
+    <Description>Modern PE editor</Description>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <PeCoreDir Condition="'$(PeCoreDir)' == ''">$(MSBuildThisFileDirectory)..\..\out\core\Release\</PeCoreDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <PublishReadyToRun>true</PublishReadyToRun>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="CoffeeExplorer.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(PeCoreDir)pecore.dll" Condition="Exists('$(PeCoreDir)pecore.dll')" Link="pecore.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="$(PeCoreDir)pecore.pdb" Condition="'$(Configuration)' == 'Debug' And Exists('$(PeCoreDir)pecore.pdb')" Link="pecore.pdb" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="$(PeCoreDir)CoffeeExplorer.Shell.dll" Condition="Exists('$(PeCoreDir)CoffeeExplorer.Shell.dll')" Link="CoffeeExplorer.Shell.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="Package\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="translations\*.lang" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Themes\Custom\*.jsonc;Themes\Custom\*.json" Link="themes\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="WarnMissingCore" BeforeTargets="Build" Condition="!Exists('$(PeCoreDir)pecore.dll')">
+    <Warning Text="pecore.dll was not found in $(PeCoreDir). Build the core first (build.ps1) or pass -p:PeCoreDir=..." />
+  </Target>
+
+</Project>

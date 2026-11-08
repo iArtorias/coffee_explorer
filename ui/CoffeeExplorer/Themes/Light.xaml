@@ -1,0 +1,185 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+    <system:Boolean x:Key="Theme.IsDark">False</system:Boolean>
+    <Color x:Key="Color.Window.Background">#FFFAFAFD</Color>
+    <SolidColorBrush x:Key="Brush.Window.Background" Color="#FFFAFAFD" />
+    <Color x:Key="Color.Window.Foreground">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.Window.Foreground" Color="#FF202020" />
+    <Color x:Key="Color.Window.Border">#FFF0F1F2</Color>
+    <SolidColorBrush x:Key="Brush.Window.Border" Color="#FFF0F1F2" />
+    <Color x:Key="Color.Panel.Background">#FFFAFAFD</Color>
+    <SolidColorBrush x:Key="Brush.Panel.Background" Color="#FFFAFAFD" />
+    <Color x:Key="Color.Panel.Border">#FFF0F1F2</Color>
+    <SolidColorBrush x:Key="Brush.Panel.Border" Color="#FFF0F1F2" />
+    <Color x:Key="Color.Panel.HeaderForeground">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.Panel.HeaderForeground" Color="#FF202020" />
+    <Color x:Key="Color.Editor.Background">#FFFFFFFF</Color>
+    <SolidColorBrush x:Key="Brush.Editor.Background" Color="#FFFFFFFF" />
+    <Color x:Key="Color.Editor.Foreground">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.Editor.Foreground" Color="#FF202020" />
+    <Color x:Key="Color.Editor.LineHighlight">#40EAEAEA</Color>
+    <SolidColorBrush x:Key="Brush.Editor.LineHighlight" Color="#40EAEAEA" />
+    <Color x:Key="Color.Editor.Selection">#400069CC</Color>
+    <SolidColorBrush x:Key="Brush.Editor.Selection" Color="#400069CC" />
+    <Color x:Key="Color.Editor.SelectionForeground">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.Editor.SelectionForeground" Color="#FF202020" />
+    <Color x:Key="Color.Editor.InactiveSelection">#1A0069CC</Color>
+    <SolidColorBrush x:Key="Brush.Editor.InactiveSelection" Color="#1A0069CC" />
+    <Color x:Key="Color.Editor.Offset">#FF606060</Color>
+    <SolidColorBrush x:Key="Brush.Editor.Offset" Color="#FF606060" />
+    <Color x:Key="Color.Editor.OffsetActive">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.Editor.OffsetActive" Color="#FF202020" />
+    <Color x:Key="Color.Editor.Header">#FF606060</Color>
+    <SolidColorBrush x:Key="Brush.Editor.Header" Color="#FF606060" />
+    <Color x:Key="Color.Editor.HeaderActive">#FF0069CC</Color>
+    <SolidColorBrush x:Key="Brush.Editor.HeaderActive" Color="#FF0069CC" />
+    <Color x:Key="Color.Editor.Modified">#FFAD0707</Color>
+    <SolidColorBrush x:Key="Brush.Editor.Modified" Color="#FFAD0707" />
+    <Color x:Key="Color.Editor.OddColumn">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.Editor.OddColumn" Color="#FF202020" />
+    <Color x:Key="Color.Editor.Caret">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.Editor.Caret" Color="#FF202020" />
+    <Color x:Key="Color.Editor.Unreadable">#FFBBBBBB</Color>
+    <SolidColorBrush x:Key="Brush.Editor.Unreadable" Color="#FFBBBBBB" />
+    <Color x:Key="Color.Editor.Separator">#40F7F7F7</Color>
+    <SolidColorBrush x:Key="Brush.Editor.Separator" Color="#40F7F7F7" />
+    <Color x:Key="Color.Editor.FindMatch">#1A0069CC</Color>
+    <SolidColorBrush x:Key="Brush.Editor.FindMatch" Color="#1A0069CC" />
+    <Color x:Key="Color.Editor.Difference">#26AD0707</Color>
+    <SolidColorBrush x:Key="Brush.Editor.Difference" Color="#26AD0707" />
+    <Color x:Key="Color.Text.Foreground">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.Text.Foreground" Color="#FF202020" />
+    <Color x:Key="Color.Text.Muted">#FF606060</Color>
+    <SolidColorBrush x:Key="Brush.Text.Muted" Color="#FF606060" />
+    <Color x:Key="Color.Text.Disabled">#FFBBBBBB</Color>
+    <SolidColorBrush x:Key="Brush.Text.Disabled" Color="#FFBBBBBB" />
+    <Color x:Key="Color.Text.Link">#FF0069CC</Color>
+    <SolidColorBrush x:Key="Brush.Text.Link" Color="#FF0069CC" />
+    <Color x:Key="Color.Text.Error">#FFAD0707</Color>
+    <SolidColorBrush x:Key="Brush.Text.Error" Color="#FFAD0707" />
+    <Color x:Key="Color.Accent.Background">#FF0069CC</Color>
+    <SolidColorBrush x:Key="Brush.Accent.Background" Color="#FF0069CC" />
+    <Color x:Key="Color.Accent.Foreground">#FFFFFFFF</Color>
+    <SolidColorBrush x:Key="Brush.Accent.Foreground" Color="#FFFFFFFF" />
+    <Color x:Key="Color.Accent.Hover">#FF0063C1</Color>
+    <SolidColorBrush x:Key="Brush.Accent.Hover" Color="#FF0063C1" />
+    <Color x:Key="Color.Focus.Border">#FF0069CC</Color>
+    <SolidColorBrush x:Key="Brush.Focus.Border" Color="#FF0069CC" />
+    <Color x:Key="Color.Control.Background">#FFFFFFFF</Color>
+    <SolidColorBrush x:Key="Brush.Control.Background" Color="#FFFFFFFF" />
+    <Color x:Key="Color.Control.Foreground">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.Control.Foreground" Color="#FF202020" />
+    <Color x:Key="Color.Control.Border">#FFD8D8D8</Color>
+    <SolidColorBrush x:Key="Brush.Control.Border" Color="#FFD8D8D8" />
+    <Color x:Key="Color.Control.Placeholder">#FF999999</Color>
+    <SolidColorBrush x:Key="Brush.Control.Placeholder" Color="#FF999999" />
+    <Color x:Key="Color.Control.Hover">#1F000000</Color>
+    <SolidColorBrush x:Key="Brush.Control.Hover" Color="#1F000000" />
+    <Color x:Key="Color.Control.Pressed">#FFD6D6D8</Color>
+    <SolidColorBrush x:Key="Brush.Control.Pressed" Color="#FFD6D6D8" />
+    <Color x:Key="Color.Control.Checked">#FFD6D6D6</Color>
+    <SolidColorBrush x:Key="Brush.Control.Checked" Color="#FFD6D6D6" />
+    <Color x:Key="Color.Button.Background">#FFEAEAEA</Color>
+    <SolidColorBrush x:Key="Brush.Button.Background" Color="#FFEAEAEA" />
+    <Color x:Key="Color.Button.Foreground">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.Button.Foreground" Color="#FF202020" />
+    <Color x:Key="Color.Button.Hover">#FFF2F3F4</Color>
+    <SolidColorBrush x:Key="Brush.Button.Hover" Color="#FFF2F3F4" />
+    <Color x:Key="Color.Button.Border">#FFEAEAEA</Color>
+    <SolidColorBrush x:Key="Brush.Button.Border" Color="#FFEAEAEA" />
+    <Color x:Key="Color.Menu.Background">#FFFAFAFD</Color>
+    <SolidColorBrush x:Key="Brush.Menu.Background" Color="#FFFAFAFD" />
+    <Color x:Key="Color.Menu.Foreground">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.Menu.Foreground" Color="#FF202020" />
+    <Color x:Key="Color.Menu.Selection">#1A0069CC</Color>
+    <SolidColorBrush x:Key="Brush.Menu.Selection" Color="#1A0069CC" />
+    <Color x:Key="Color.Menu.SelectionForeground">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.Menu.SelectionForeground" Color="#FF202020" />
+    <Color x:Key="Color.Menu.Separator">#FFEEEEF1</Color>
+    <SolidColorBrush x:Key="Brush.Menu.Separator" Color="#FFEEEEF1" />
+    <Color x:Key="Color.Menu.Border">#FFE4E5E6</Color>
+    <SolidColorBrush x:Key="Brush.Menu.Border" Color="#FFE4E5E6" />
+    <Color x:Key="Color.MenuBar.Selection">#FFEAEAEA</Color>
+    <SolidColorBrush x:Key="Brush.MenuBar.Selection" Color="#FFEAEAEA" />
+    <Color x:Key="Color.Tab.ActiveBackground">#FFFFFFFF</Color>
+    <SolidColorBrush x:Key="Brush.Tab.ActiveBackground" Color="#FFFFFFFF" />
+    <Color x:Key="Color.Tab.InactiveBackground">#FFFAFAFD</Color>
+    <SolidColorBrush x:Key="Brush.Tab.InactiveBackground" Color="#FFFAFAFD" />
+    <Color x:Key="Color.Tab.ActiveForeground">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.Tab.ActiveForeground" Color="#FF202020" />
+    <Color x:Key="Color.Tab.InactiveForeground">#FF606060</Color>
+    <SolidColorBrush x:Key="Brush.Tab.InactiveForeground" Color="#FF606060" />
+    <Color x:Key="Color.Tab.Border">#FFF0F1F2</Color>
+    <SolidColorBrush x:Key="Brush.Tab.Border" Color="#FFF0F1F2" />
+    <Color x:Key="Color.Tab.ActiveBorder">#FF000000</Color>
+    <SolidColorBrush x:Key="Brush.Tab.ActiveBorder" Color="#FF000000" />
+    <Color x:Key="Color.Tab.Hover">#FFFFFFFF</Color>
+    <SolidColorBrush x:Key="Brush.Tab.Hover" Color="#FFFFFFFF" />
+    <Color x:Key="Color.Tab.StripBackground">#FFFAFAFD</Color>
+    <SolidColorBrush x:Key="Brush.Tab.StripBackground" Color="#FFFAFAFD" />
+    <Color x:Key="Color.List.Hover">#14000000</Color>
+    <SolidColorBrush x:Key="Brush.List.Hover" Color="#14000000" />
+    <Color x:Key="Color.List.Selection">#25000000</Color>
+    <SolidColorBrush x:Key="Brush.List.Selection" Color="#25000000" />
+    <Color x:Key="Color.List.SelectionForeground">#FF202020</Color>
+    <SolidColorBrush x:Key="Brush.List.SelectionForeground" Color="#FF202020" />
+    <Color x:Key="Color.List.InactiveSelection">#99DADADA</Color>
+    <SolidColorBrush x:Key="Brush.List.InactiveSelection" Color="#99DADADA" />
+    <Color x:Key="Color.ScrollBar.Thumb">#C0646464</Color>
+    <SolidColorBrush x:Key="Brush.ScrollBar.Thumb" Color="#C0646464" />
+    <Color x:Key="Color.ScrollBar.ThumbHover">#D0646464</Color>
+    <SolidColorBrush x:Key="Brush.ScrollBar.ThumbHover" Color="#D0646464" />
+    <Color x:Key="Color.ScrollBar.ThumbActive">#E0646464</Color>
+    <SolidColorBrush x:Key="Brush.ScrollBar.ThumbActive" Color="#E0646464" />
+    <Color x:Key="Color.StatusBar.Background">#FFFAFAFD</Color>
+    <SolidColorBrush x:Key="Brush.StatusBar.Background" Color="#FFFAFAFD" />
+    <Color x:Key="Color.StatusBar.Foreground">#FF606060</Color>
+    <SolidColorBrush x:Key="Brush.StatusBar.Foreground" Color="#FF606060" />
+    <Color x:Key="Color.StatusBar.Border">#FFF0F1F2</Color>
+    <SolidColorBrush x:Key="Brush.StatusBar.Border" Color="#FFF0F1F2" />
+    <Color x:Key="Color.StatusBar.Hover">#FFE3E3E5</Color>
+    <SolidColorBrush x:Key="Brush.StatusBar.Hover" Color="#FFE3E3E5" />
+    <Color x:Key="Color.Widget.Background">#FFFAFAFD</Color>
+    <SolidColorBrush x:Key="Brush.Widget.Background" Color="#FFFAFAFD" />
+    <Color x:Key="Color.Widget.Border">#FFE4E5E6</Color>
+    <SolidColorBrush x:Key="Brush.Widget.Border" Color="#FFE4E5E6" />
+    <Color x:Key="Color.ToolTip.Background">#FFFAFAFD</Color>
+    <SolidColorBrush x:Key="Brush.ToolTip.Background" Color="#FFFAFAFD" />
+    <Color x:Key="Color.ToolTip.Border">#FFE4E5E6</Color>
+    <SolidColorBrush x:Key="Brush.ToolTip.Border" Color="#FFE4E5E6" />
+    <Color x:Key="Color.CheckBox.Background">#FFEAEAEA</Color>
+    <SolidColorBrush x:Key="Brush.CheckBox.Background" Color="#FFEAEAEA" />
+    <Color x:Key="Color.CheckBox.Border">#FF868686</Color>
+    <SolidColorBrush x:Key="Brush.CheckBox.Border" Color="#FF868686" />
+    <Color x:Key="Color.Badge.Background">#FF0069CC</Color>
+    <SolidColorBrush x:Key="Brush.Badge.Background" Color="#FF0069CC" />
+    <Color x:Key="Color.Badge.Foreground">#FFFFFFFF</Color>
+    <SolidColorBrush x:Key="Brush.Badge.Foreground" Color="#FFFFFFFF" />
+    <Color x:Key="Color.Chart.Primary">#FF1A5CFF</Color>
+    <SolidColorBrush x:Key="Brush.Chart.Primary" Color="#FF1A5CFF" />
+    <Color x:Key="Color.Chart.Secondary">#FFD18616</Color>
+    <SolidColorBrush x:Key="Brush.Chart.Secondary" Color="#FFD18616" />
+    <Color x:Key="Color.Chart.Grid">#66202020</Color>
+    <SolidColorBrush x:Key="Brush.Chart.Grid" Color="#66202020" />
+    <Color x:Key="Color.Warning.Foreground">#FFD18616</Color>
+    <SolidColorBrush x:Key="Brush.Warning.Foreground" Color="#FFD18616" />
+    <Color x:Key="Color.Grid.Line">#FFF0F1F2</Color>
+    <SolidColorBrush x:Key="Brush.Grid.Line" Color="#FFF0F1F2" />
+    <Color x:Key="Color.Grid.HeaderBackground">#FFFAFAFD</Color>
+    <SolidColorBrush x:Key="Brush.Grid.HeaderBackground" Color="#FFFAFAFD" />
+    <Color x:Key="Color.Tree.IndentGuide">#FF606060</Color>
+    <SolidColorBrush x:Key="Brush.Tree.IndentGuide" Color="#FF606060" />
+    <Color x:Key="Color.Text.Number">#FF388A34</Color>
+    <SolidColorBrush x:Key="Brush.Text.Number" Color="#FF388A34" />
+    <Color x:Key="Color.List.FocusBorder">#FF0069CC</Color>
+    <SolidColorBrush x:Key="Brush.List.FocusBorder" Color="#FF0069CC" />
+    <Color x:Key="Color.Highlight.Background">#40587C0C</Color>
+    <SolidColorBrush x:Key="Brush.Highlight.Background" Color="#40587C0C" />
+    <Color x:Key="Color.Highlight.Marker">#FF388A34</Color>
+    <SolidColorBrush x:Key="Brush.Highlight.Marker" Color="#FF388A34" />
+    <Color x:Key="Color.Outline.Active">#00000000</Color>
+    <SolidColorBrush x:Key="Brush.Outline.Active" Color="#00000000" />
+    <Color x:Key="Color.Outline.Border">#00000000</Color>
+    <SolidColorBrush x:Key="Brush.Outline.Border" Color="#00000000" />
+</ResourceDictionary>

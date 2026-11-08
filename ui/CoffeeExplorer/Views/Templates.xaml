@@ -1,0 +1,580 @@
+<!--
+    Data templates of the node and tool views shown on the right side of a document tab.
+    Structure nodes (NodeViewModel) are built in code by 'NodeView', the tools are plain forms.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:views="clr-namespace:CoffeeExplorer.Views"
+                    xmlns:controls="clr-namespace:CoffeeExplorer.Controls"
+                    xmlns:vm="clr-namespace:CoffeeExplorer.ViewModels"
+                    xmlns:services="clr-namespace:CoffeeExplorer.Services"
+                    xmlns:l="clr-namespace:CoffeeExplorer.Services">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Converters.xaml" />
+        <ResourceDictionary Source="../Themes/Controls.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- Title and description above every tool. -->
+    <DataTemplate x:Key="ToolHeader" DataType="{x:Type vm:ToolViewModel}">
+        <Border Style="{StaticResource Pane.Header}">
+            <StackPanel>
+                <TextBlock Text="{Binding Title}" Style="{StaticResource Text.Title}" HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding Description}" Foreground="{DynamicResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,2,0,0" />
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <Style x:Key="Form.Label" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Foreground}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,10,0" />
+    </Style>
+
+    <!-- Structure nodes. -->
+
+    <DataTemplate DataType="{x:Type vm:NodeViewModel}">
+        <views:NodeView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:LoadingViewModel}">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" Style="{StaticResource Pane.Header}">
+                <TextBlock Text="{Binding Title}" Style="{StaticResource Text.Title}" HorizontalAlignment="Left" />
+            </Border>
+            <StackPanel Margin="12" VerticalAlignment="Top" HorizontalAlignment="Left" Width="240">
+                <TextBlock Text="{l:Tr 'Loading...'}" Margin="0,0,0,6" />
+                <ProgressBar IsIndeterminate="True" Height="4" />
+            </StackPanel>
+        </DockPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:MessageViewModel}">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" Style="{StaticResource Pane.Header}">
+                <TextBlock Text="{Binding Title}" Style="{StaticResource Text.Title}" HorizontalAlignment="Left" />
+            </Border>
+            <Border Style="{StaticResource InfoBar}" Margin="12" VerticalAlignment="Top">
+                <DockPanel>
+                    <Image DockPanel.Dock="Left" Source="{DynamicResource Icon.StatusWarning}" Style="{StaticResource Icon}" Margin="0,0,8,0" VerticalAlignment="Top" />
+                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                </DockPanel>
+            </Border>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- Tools group. A card per tool. -->
+    <DataTemplate DataType="{x:Type vm:GroupViewModel}">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" Style="{StaticResource Pane.Header}">
+                <TextBlock Text="{Binding Title}" Style="{StaticResource Text.Title}" HorizontalAlignment="Left" />
+            </Border>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Node.Children}" Margin="12">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:TreeNodeViewModel}">
+                            <Button Width="210" Height="64" Margin="0,0,10,10" HorizontalContentAlignment="Left" Padding="14,0"
+                                    Command="{Binding DataContext.ShowNodeCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image views:IconSource.Key="{Binding IconKey}" Width="24" Height="24" Margin="0,0,12,0" />
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- Resources. Types on the left, the resource with its preview on the right. -->
+
+    <DataTemplate DataType="{x:Type vm:ResourcesViewModel}">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" Style="{StaticResource Pane.Header}">
+                <DockPanel>
+                    <ItemsControl DockPanel.Dock="Right" ItemsSource="{Binding ViewCommands}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:CommandItem}">
+                                <Button Style="{StaticResource Button.Tool}" Command="{Binding Command}" ToolTip="{Binding ToolTip}" Margin="2,0,0,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image views:IconSource.Key="{Binding IconKey}" Style="{StaticResource Icon}" />
+                                        <TextBlock Text="{Binding Label}" Margin="6,0,2,0" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{Binding Title}" Style="{StaticResource Text.Title}" HorizontalAlignment="Left" />
+                </DockPanel>
+            </Border>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="280" MinWidth="160" />
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="*" MinWidth="200" />
+                </Grid.ColumnDefinitions>
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource Brush.Panel.Border}" Background="{DynamicResource Brush.Panel.Background}" Padding="4,2">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource Button.Tool}" Command="{Binding ExpandAllCommand}" ToolTip="{l:Tr 'Expand all'}">
+                                <Image Source="{DynamicResource Icon.ExpandAll}" Style="{StaticResource Icon}" />
+                            </Button>
+                            <Button Style="{StaticResource Button.Tool}" Command="{Binding CollapseAllCommand}" ToolTip="{l:Tr 'Collapse all'}">
+                                <Image Source="{DynamicResource Icon.CollapseAll}" Style="{StaticResource Icon}" />
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                    <Grid>
+                        <TextBlock Text="{l:Tr 'The file has no resources'}" Foreground="{DynamicResource Brush.Text.Muted}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" />
+                        <TreeView ItemsSource="{Binding Groups}" views:TreeSelection.Command="{Binding SelectCommand}">
+                            <TreeView.ItemContainerStyle>
+                                <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                                    <Setter Property="views:TreeSelection.BringIntoView" Value="True" />
+                                </Style>
+                            </TreeView.ItemContainerStyle>
+                            <TreeView.Resources>
+                                <HierarchicalDataTemplate DataType="{x:Type vm:ResourceGroupViewModel}" ItemsSource="{Binding Items}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{DynamicResource Icon.FolderClosed}" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                                        <TextBlock Text="{Binding Caption}" />
+                                    </StackPanel>
+                                </HierarchicalDataTemplate>
+                                <DataTemplate DataType="{x:Type vm:ResourceItemViewModel}">
+                                    <StackPanel Orientation="Horizontal" ToolTip="{Binding ToolTip}" Background="Transparent"
+                                                Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=TreeView}}">
+                                        <StackPanel.ContextMenu>
+                                            <ContextMenu ItemsSource="{Binding PlacementTarget.Tag.Commands, RelativeSource={RelativeSource Self}}">
+                                                <ContextMenu.ItemContainerStyle>
+                                                    <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                                                        <Setter Property="Header" Value="{Binding Label}" />
+                                                        <Setter Property="Command" Value="{Binding Command}" />
+                                                        <Setter Property="ToolTip" Value="{Binding ToolTip}" />
+                                                    </Style>
+                                                </ContextMenu.ItemContainerStyle>
+                                            </ContextMenu>
+                                        </StackPanel.ContextMenu>
+                                        <Image views:IconSource.Key="{Binding IconKey}" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                                        <TextBlock Text="{Binding Caption}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </TreeView.Resources>
+                        </TreeView>
+                    </Grid>
+                </DockPanel>
+                <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" ResizeDirection="Columns" />
+                <Grid Grid.Column="2">
+                    <TextBlock Text="{l:Tr 'Select a resource'}" Foreground="{DynamicResource Brush.Text.Muted}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <ContentControl Content="{Binding Item}" Focusable="False" />
+                    <TextBlock Text="{Binding Error}" Foreground="{DynamicResource Brush.Text.Error}" Margin="12" VerticalAlignment="Bottom"
+                               Visibility="{Binding Error, Converter={StaticResource NullToVisibility}}" />
+                </Grid>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- Address converter. -->
+
+    <DataTemplate DataType="{x:Type vm:AddressConverterViewModel}">
+        <DockPanel>
+            <ContentPresenter DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{StaticResource ToolHeader}" />
+            <Grid DockPanel.Dock="Top" Margin="14,12,14,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="220" />
+                    <ColumnDefinition Width="24" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="8" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="8" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="VA" Style="{StaticResource Form.Label}" ToolTip="{l:Tr 'Virtual address = image base + RVA'}" />
+                <TextBox Grid.Column="1" Style="{StaticResource TextBox.Mono}" Text="{Binding Va, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock Grid.Row="2" Text="RVA" Style="{StaticResource Form.Label}" ToolTip="{l:Tr 'Relative virtual address'}" />
+                <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource TextBox.Mono}" Text="{Binding Rva, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock Grid.Row="4" Text="{l:Tr 'File offset'}" Style="{StaticResource Form.Label}" />
+                <TextBox Grid.Row="4" Grid.Column="1" Style="{StaticResource TextBox.Mono}" Text="{Binding Offset, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock Grid.Column="3" Text="{l:Tr 'Section'}" Style="{StaticResource Form.Label}" />
+                <TextBlock Grid.Column="4" Text="{Binding Section}" VerticalAlignment="Center" FontWeight="SemiBold" />
+                <TextBlock Grid.Row="2" Grid.Column="3" Text="{l:Tr 'Symbol'}" Style="{StaticResource Form.Label}" />
+                <TextBlock Grid.Row="2" Grid.Column="4" Text="{Binding Symbol}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2" Text="{Binding Message}" Foreground="{DynamicResource Brush.Text.Muted}" VerticalAlignment="Center" TextWrapping="Wrap" />
+            </Grid>
+            <controls:HexPanel Document="{Binding Document}" Selection="{Binding Selection}" Title="{l:Tr 'File'}" />
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- Hex editor. -->
+
+    <DataTemplate DataType="{x:Type vm:HexEditorViewModel}">
+        <DockPanel>
+            <ContentPresenter DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{StaticResource ToolHeader}" />
+            <controls:HexPanel Document="{Binding Document}" Selection="{Binding Selection}" />
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- Detect It Easy. -->
+
+    <DataTemplate DataType="{x:Type vm:DieViewModel}">
+        <DockPanel>
+            <ContentPresenter DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{StaticResource ToolHeader}" />
+            <Border DockPanel.Dock="Top" Style="{StaticResource InfoBar}" Margin="14,12,14,0" Visibility="{Binding IsAvailable, Converter={StaticResource BoolToCollapsed}}">
+                <DockPanel>
+                    <Image DockPanel.Dock="Left" Source="{DynamicResource Icon.StatusWarning}" Style="{StaticResource Icon}" Margin="0,0,8,0" VerticalAlignment="Top" />
+                    <TextBlock Text="{x:Static services:DieService.UnavailableText}" TextWrapping="Wrap" />
+                </DockPanel>
+            </Border>
+            <WrapPanel DockPanel.Dock="Top" Margin="14,12,14,4">
+                <CheckBox Content="{l:Tr 'Deep scan'}" IsChecked="{Binding Options.DeepScan}" Margin="0,0,16,6" />
+                <CheckBox Content="{l:Tr 'Heuristic scan'}" IsChecked="{Binding Options.HeuristicScan}" Margin="0,0,16,6" />
+                <CheckBox Content="{l:Tr 'Recursive scan'}" IsChecked="{Binding Options.RecursiveScan}" Margin="0,0,16,6" />
+                <CheckBox Content="{l:Tr 'All types'}" IsChecked="{Binding Options.AllTypes}" Margin="0,0,16,6" />
+                <CheckBox Content="{l:Tr 'Verbose'}" IsChecked="{Binding Options.Verbose}" Margin="0,0,16,6" />
+                <Button Content="{l:Tr 'Scan'}" Style="{StaticResource Button.Accent}" Command="{Binding ScanCommand}" MinWidth="90" />
+            </WrapPanel>
+            <StackPanel DockPanel.Dock="Top" Margin="14,4,14,8">
+                <ProgressBar IsIndeterminate="True" Visibility="{Binding IsScanning, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,6" />
+                <TextBlock Text="{Binding Status}" Foreground="{DynamicResource Brush.Text.Muted}" TextWrapping="Wrap" />
+            </StackPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*" MinHeight="80" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="*" MinHeight="60" />
+                </Grid.RowDefinitions>
+                <ListView ItemsSource="{Binding Results}" Style="{StaticResource ListView.Grid}">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="{l:Tr 'Type'}" Width="130" DisplayMemberBinding="{Binding Type}" />
+                            <GridViewColumn Header="{l:Tr 'Name'}" Width="260" DisplayMemberBinding="{Binding Name}" />
+                            <GridViewColumn Header="{l:Tr 'Version'}" Width="120" DisplayMemberBinding="{Binding Version}" />
+                            <GridViewColumn Header="{l:Tr 'Info'}" Width="200" DisplayMemberBinding="{Binding Info}" />
+                            <GridViewColumn Header="{l:Tr 'File type'}" Width="100" DisplayMemberBinding="{Binding FileType}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" ResizeDirection="Rows" />
+                <TextBox Grid.Row="2" Text="{Binding Raw, Mode=OneWay}" IsReadOnly="True" Style="{StaticResource TextBox.Mono}" BorderThickness="0"
+                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="NoWrap" AcceptsReturn="True"
+                         Background="{DynamicResource Brush.Editor.Background}" Padding="8" ToolTip="{l:Tr 'Raw answer of die.dll'}" />
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- Disassembler. -->
+
+    <DataTemplate DataType="{x:Type vm:DisassemblerViewModel}">
+        <DockPanel>
+            <ContentPresenter DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{StaticResource ToolHeader}" />
+            <WrapPanel DockPanel.Dock="Top" Margin="14,12,14,4">
+                <!-- Enter in the fields disassembles, Enter in the listing follows a branch (no default button). -->
+                <WrapPanel.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding DisassembleCommand}" />
+                </WrapPanel.InputBindings>
+                <TextBlock Text="{l:Tr 'Mode'}" Style="{StaticResource Form.Label}" />
+                <ComboBox ItemsSource="{Binding BitOptions}" SelectedItem="{Binding Bits}" Width="70" Margin="0,0,16,6">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={x:Static l:TrFormatConverter.Instance}, ConverterParameter='# bit'}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Text="{l:Tr 'Offset'}" Style="{StaticResource Form.Label}" />
+                <TextBox Text="{Binding OffsetText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBox.Mono}" Width="130" Margin="0,0,16,6" />
+                <TextBlock Text="{l:Tr 'Size'}" Style="{StaticResource Form.Label}" />
+                <TextBox Text="{Binding SizeText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBox.Mono}" Width="90" Margin="0,0,16,6" />
+                <TextBlock Text="{l:Tr 'Base address'}" Style="{StaticResource Form.Label}" ToolTip="{l:Tr 'Address of the first byte, follows the offset'}" />
+                <TextBox Text="{Binding BaseText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBox.Mono}" Width="150" Margin="0,0,16,6" />
+                <Button Content="{l:Tr 'Disassemble'}" Style="{StaticResource Button.Accent}" Command="{Binding DisassembleCommand}" Margin="0,0,8,6" />
+                <Button Content="{l:Tr 'Entry point'}" Command="{Binding EntryPointCommand}" Margin="0,0,8,6" />
+                <Button Content="{l:Tr 'Follow'}" Command="{Binding FollowCommand}" ToolTip="{l:Tr 'Go to the target of the selected jump or call (Enter or double click)'}" ToolTipService.ShowOnDisabled="True" Margin="0,0,8,6" />
+                <Button Content="{l:Tr 'Back'}" Command="{Binding BackCommand}" ToolTip="{l:Tr 'Back to where the last Follow started (Backspace or -)'}" ToolTipService.ShowOnDisabled="True" Margin="0,0,8,6" />
+                <Button Content="{l:Tr 'Show in hex editor'}" Command="{Binding ShowInHexCommand}" Margin="0,0,16,6" />
+                <CheckBox Content="{l:Tr 'Bytes'}" IsChecked="{Binding ShowBytes}" VerticalAlignment="Center" Margin="0,0,8,6" ToolTip="{l:Tr 'Show the instruction bytes'}" />
+            </WrapPanel>
+            <TextBlock DockPanel.Dock="Top" Text="{Binding Status}" Foreground="{DynamicResource Brush.Text.Muted}" Margin="14,0,14,8" />
+            <ListView ItemsSource="{Binding Lines}" SelectedItem="{Binding SelectedLine}" Style="{StaticResource ListView.Grid}" FontFamily="{StaticResource Font.Mono}"
+                      controls:ListBehavior.ScrollSelectionIntoView="True" controls:ListBehavior.CollapsibleColumn="3" controls:ListBehavior.ColumnVisible="{Binding ShowBytes}"
+                      controls:ListBehavior.DoubleClickCommand="{Binding FollowCommand}">
+                <ListView.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding FollowCommand}" />
+                    <KeyBinding Key="Back" Command="{Binding BackCommand}" />
+                    <KeyBinding Key="OemMinus" Command="{Binding BackCommand}" />
+                    <KeyBinding Key="Subtract" Command="{Binding BackCommand}" />
+                </ListView.InputBindings>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="{l:Tr 'Follow'}" Command="{Binding FollowCommand}" InputGestureText="Enter" />
+                        <MenuItem Header="{l:Tr 'Back'}" Command="{Binding BackCommand}" InputGestureText="Backspace" />
+                        <Separator />
+                        <MenuItem Header="{l:Tr 'Show in hex editor'}" Command="{Binding ShowInHexCommand}" />
+                    </ContextMenu>
+                </ListView.ContextMenu>
+                <ListView.View>
+                    <GridView>
+                        <!-- Colors of the x64dbg-like themes. -->
+                        <!-- Marker. RIP or EIP at the entry point like the instruction pointer of x64dbg, arrows for branches. -->
+                        <GridViewColumn Header="" Width="48">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid ToolTip="{Binding MarkerToolTip}" Background="Transparent">
+                                        <Border x:Name="Cip" Background="{DynamicResource Brush.Disasm.Column.CipBackground}" CornerRadius="2" Padding="3,0" HorizontalAlignment="Left" Visibility="Collapsed">
+                                            <TextBlock Text="{Binding EntryText}" Foreground="{DynamicResource Brush.Disasm.Column.Cip}" FontWeight="SemiBold" />
+                                        </Border>
+                                        <TextBlock x:Name="Glyph" Text="{Binding BranchGlyph}" Foreground="{DynamicResource Brush.Disasm.Column.JumpLine}" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsEntry}" Value="True">
+                                            <Setter TargetName="Cip" Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Branch}" Value="jcc">
+                                            <Setter TargetName="Glyph" Property="Foreground" Value="{DynamicResource Brush.Disasm.Column.ConditionalJumpLine}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Branch}" Value="call">
+                                            <Setter TargetName="Glyph" Property="Foreground" Value="{DynamicResource Brush.Disasm.Column.CallLine}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CanFollow}" Value="False">
+                                            <Setter TargetName="Glyph" Property="Opacity" Value="0.4" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="{l:Tr 'Address'}" Width="150">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border x:Name="Back" Padding="2,0" Margin="-2,0,0,0">
+                                        <TextBlock x:Name="Text" Text="{Binding Address}" Foreground="{DynamicResource Brush.Disasm.Column.Address}" />
+                                    </Border>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsEntry}" Value="True">
+                                            <Setter TargetName="Back" Property="Background" Value="{DynamicResource Brush.Disasm.Column.CipBackground}" />
+                                            <Setter TargetName="Text" Property="Foreground" Value="{DynamicResource Brush.Disasm.Column.Cip}" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="{l:Tr 'Symbol'}" Width="180">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Label}" Foreground="{DynamicResource Brush.Disasm.Column.Label}" TextTrimming="CharacterEllipsis" ToolTip="{Binding LabelToolTip}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="{l:Tr 'Bytes'}" Width="230">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Bytes}" Foreground="{DynamicResource Brush.Disasm.Column.Bytes}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="{l:Tr 'Instruction'}" Width="420">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <controls:DisassemblyText Text="{Binding Text, Mode=OneTime}" Spans="{Binding Spans, Mode=OneTime}" ThemeProbe="{DynamicResource Brush.Disasm.Mnemonic}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="{l:Tr 'Target'}" Width="300">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Comment}" Foreground="{DynamicResource Brush.Disasm.Column.Comment}" TextTrimming="CharacterEllipsis" ToolTip="{Binding CommentToolTip}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- Rebuilder. -->
+
+    <DataTemplate DataType="{x:Type vm:RebuilderViewModel}">
+        <DockPanel>
+            <ContentPresenter DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{StaticResource ToolHeader}" />
+            <StackPanel DockPanel.Dock="Top" Margin="14,12,14,8">
+                <ItemsControl ItemsSource="{Binding Options}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:RebuilderOption}">
+                            <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked}" IsEnabled="{Binding IsEnabled}" ToolTip="{Binding ToolTip}" ToolTipService.ShowOnDisabled="True" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                    <TextBlock Text="{l:Tr 'Realign raw data'}" Style="{StaticResource Form.Label}" ToolTip="{l:Tr 'FileAlignment and the raw offsets of the sections'}" />
+                    <ComboBox ItemsSource="{Binding RealignOptions}" SelectedItem="{Binding Realign}" Width="160">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock x:Name="Text" Text="{Binding Converter={x:Static l:TrFormatConverter.Instance}, ConverterParameter='# bytes'}" />
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding}" Value="0">
+                                        <Setter TargetName="Text" Property="Text" Value="{l:Tr 'Keep'}" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                    <CheckBox Content="{l:Tr 'New image base'}" IsChecked="{Binding ChangeImageBase}" IsEnabled="{Binding CanRebase}" ToolTip="{Binding RebaseReason}" ToolTipService.ShowOnDisabled="True" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    <TextBox Text="{Binding NewImageBase, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBox.Mono}" Width="170" IsEnabled="{Binding ChangeImageBase}" />
+                </StackPanel>
+                <Button Content="{l:Tr 'Rebuild'}" Style="{StaticResource Button.Accent}" Command="{Binding RebuildCommand}" HorizontalAlignment="Left" MinWidth="110" Margin="0,14,0,0" />
+            </StackPanel>
+            <TextBox Text="{Binding Log, Mode=OneWay}" IsReadOnly="True" Style="{StaticResource TextBox.Mono}" BorderThickness="0,1,0,0" Padding="10"
+                     VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" Background="{DynamicResource Brush.Editor.Background}" />
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- Import adder. -->
+
+    <DataTemplate DataType="{x:Type vm:ImportAdderViewModel}">
+        <DockPanel>
+            <ContentPresenter DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{StaticResource ToolHeader}" />
+            <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource Brush.Panel.Border}" Background="{DynamicResource Brush.Panel.Background}" Padding="14,10">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="{l:Tr 'Rebuild import table'}" Style="{StaticResource Button.Accent}" Command="{Binding RebuildCommand}" />
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox Content="{l:Tr 'Create new section'}" IsChecked="{Binding CreateSection}" VerticalAlignment="Center" Margin="0,0,8,0"
+                                  ToolTip="{l:Tr 'Off: the new import table is appended to the last section. On: it goes into a new section with this name'}" />
+                        <TextBox Text="{Binding SectionName, UpdateSourceTrigger=PropertyChanged}" Width="100" MaxLength="8" Margin="0,0,16,0"
+                                 IsEnabled="{Binding CreateSection}" />
+                        <CheckBox Content="{l:Tr 'Write OriginalFirstThunk arrays'}" IsChecked="{Binding UseOft}" VerticalAlignment="Center" Margin="0,0,16,0"
+                                  ToolTip="{l:Tr 'Import name tables next to the address tables, the loader needs them for bound imports and they help tools'}" />
+                        <TextBlock Text="{Binding Status}" Foreground="{DynamicResource Brush.Text.Muted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            <Grid Margin="14,12,14,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="1.4*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="1.4*" />
+                </Grid.ColumnDefinitions>
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="{l:Tr 'Modules'}" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Content="{l:Tr 'Add...'}" Command="{Binding AddModuleCommand}" Margin="0,0,8,0" />
+                        <Button Content="{l:Tr 'Remove'}" Command="{Binding RemoveModuleCommand}" />
+                    </StackPanel>
+                    <ListBox ItemsSource="{Binding Modules}" SelectedItem="{Binding SelectedModule}" DisplayMemberPath="Name" />
+                </DockPanel>
+                <DockPanel Grid.Column="2">
+                    <TextBlock DockPanel.Dock="Top" Text="{l:Tr 'Exported functions'}" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <TextBox DockPanel.Dock="Top" Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,6" ToolTip="{l:Tr 'Filter by name'}" />
+                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Content="{l:Tr 'Import by name'}" Command="{Binding ImportByNameCommand}" Margin="0,0,8,0" />
+                        <Button Content="{l:Tr 'Import by ordinal'}" Command="{Binding ImportByOrdinalCommand}" />
+                    </StackPanel>
+                    <ListBox ItemsSource="{Binding FilteredExports}" VirtualizingPanel.IsVirtualizing="True">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:ExportEntry}">
+                                <CheckBox IsChecked="{Binding IsChecked}" Margin="0">
+                                    <TextBlock>
+                                        <Run Text="{Binding Display, Mode=OneWay}" />
+                                        <Run Text="{Binding Ordinal, Mode=OneWay, StringFormat='  @{0}'}" Foreground="{DynamicResource Brush.Text.Muted}" />
+                                    </TextBlock>
+                                </CheckBox>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+                <DockPanel Grid.Column="4">
+                    <TextBlock DockPanel.Dock="Top" Text="{l:Tr 'Functions to import'}" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Content="{l:Tr 'Name or ordinal'}" Command="{Binding ToggleMethodCommand}" Margin="0,0,8,0" ToolTip="{l:Tr 'Switch how the selected function is imported'}" />
+                        <Button Content="{l:Tr 'Remove'}" Command="{Binding RemoveImportCommand}" />
+                    </StackPanel>
+                    <ListView ItemsSource="{Binding Imports}" SelectedItem="{Binding SelectedImport}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="{l:Tr 'Module'}" Width="130" DisplayMemberBinding="{Binding Module}" />
+                                <GridViewColumn Header="{l:Tr 'Function'}" Width="200" DisplayMemberBinding="{Binding Display}" />
+                                <GridViewColumn Header="{l:Tr 'By'}" Width="100" DisplayMemberBinding="{Binding Method}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </DockPanel>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- Dependency walker. -->
+
+    <DataTemplate DataType="{x:Type vm:DependencyWalkerViewModel}">
+        <DockPanel>
+            <ContentPresenter DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{StaticResource ToolHeader}" />
+            <TextBlock DockPanel.Dock="Bottom" Text="{Binding Status}" Foreground="{DynamicResource Brush.Text.Muted}" Margin="12,4" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="320" MinWidth="160" />
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="*" MinWidth="200" />
+                </Grid.ColumnDefinitions>
+                <TreeView ItemsSource="{Binding Roots}">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type vm:ModuleNode}" ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal" ToolTip="{Binding ToolTip}" Background="Transparent">
+                                <Image views:IconSource.Key="{Binding IconKey}" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                                <TextBlock Text="{Binding Caption}" />
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+                <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" ResizeDirection="Columns" />
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" MinHeight="80" />
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="*" MinHeight="60" />
+                    </Grid.RowDefinitions>
+                    <ListView Style="{StaticResource ListView.Grid}" controls:TableView.Table="{Binding ModuleInfo}" />
+                    <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" ResizeDirection="Rows" />
+                    <DockPanel Grid.Row="2">
+                        <Border DockPanel.Dock="Top" Style="{StaticResource Pane.Header}" MinHeight="28" Padding="10,4">
+                            <TextBlock Text="{l:Tr 'Imported functions'}" FontWeight="SemiBold" />
+                        </Border>
+                        <ListView ItemsSource="{Binding Functions}" Style="{StaticResource ListView.Grid}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="{l:Tr 'Function'}" Width="300" DisplayMemberBinding="{Binding Display}" />
+                                    <GridViewColumn Header="{l:Tr 'Ordinal'}" Width="80" DisplayMemberBinding="{Binding Ordinal}" />
+                                    <GridViewColumn Header="{l:Tr 'Hint'}" Width="80" DisplayMemberBinding="{Binding Hint}" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </DockPanel>
+                </Grid>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+
+</ResourceDictionary>
