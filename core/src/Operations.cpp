@@ -1241,16 +1241,40 @@ namespace PeCore
 
             description = "Rebuild";
         }
-        else if (id == "imports.move_up" || id == "imports.move_down")
+        else if (id == "imports.move_up" || id == "imports.move_down" || id == "imports.move")
         {
             uint64_t index = command.GetUnsigned( "index", UINT64_MAX );
             size_t count = ReadImports( image ).size();
             Require( index < count, ErrorCode::ERR_INVALID_ARGUMENT, "No such import descriptor" );
-            uint64_t other = id == "imports.move_up" ? index - 1 : index + 1;
-            Require( other < count, ErrorCode::ERR_INVALID_ARGUMENT, "The descriptor cannot move further" );
             uint64_t base = image.RvaToOffset( image.GetDirectory( DIR_IMPORT ).m_Rva );
-            std::swap_ranges( data.begin() + static_cast<ptrdiff_t>( base + index * 20 ), data.begin() + static_cast<ptrdiff_t>( base + index * 20 + 20 ),
-                data.begin() + static_cast<ptrdiff_t>( base + other * 20 ) );
+
+            if (id == "imports.move")
+            {
+                // Drag and drop of the UI: move the descriptor to any position, the ones between shift over.
+                uint64_t target = command.GetUnsigned( "target", UINT64_MAX );
+                Require( target < count && target != index, ErrorCode::ERR_INVALID_ARGUMENT, "No such import descriptor" );
+                uint8_t descriptor[20];
+                std::memcpy( descriptor, data.data() + base + index * 20, 20 );
+
+                if (target < index)
+                {
+                    std::memmove( data.data() + base + ( target + 1 ) * 20, data.data() + base + target * 20, ( index - target ) * 20 );
+                }
+                else
+                {
+                    std::memmove( data.data() + base + index * 20, data.data() + base + ( index + 1 ) * 20, ( target - index ) * 20 );
+                }
+
+                std::memcpy( data.data() + base + target * 20, descriptor, 20 );
+            }
+            else
+            {
+                uint64_t other = id == "imports.move_up" ? index - 1 : index + 1;
+                Require( other < count, ErrorCode::ERR_INVALID_ARGUMENT, "The descriptor cannot move further" );
+                std::swap_ranges( data.begin() + static_cast<ptrdiff_t>( base + index * 20 ), data.begin() + static_cast<ptrdiff_t>( base + index * 20 + 20 ),
+                    data.begin() + static_cast<ptrdiff_t>( base + other * 20 ) );
+            }
+
             message = "Import descriptor moved";
             select = "imports";
             description = "Move import descriptor";

@@ -10,6 +10,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using CoffeeExplorer.Interop;
 using CoffeeExplorer.Services;
 using CoffeeExplorer.ViewModels;
 using static CoffeeExplorer.Services.LanguageService;
@@ -30,10 +31,21 @@ namespace CoffeeExplorer.Controls
         private static readonly DependencyProperty SortProperty = DependencyProperty.RegisterAttached(
             "Sort", typeof(SortState), typeof(TableView), new PropertyMetadata(null));
 
+        private static readonly DependencyProperty ReorderProperty = DependencyProperty.RegisterAttached(
+            "Reorder", typeof(ReorderState), typeof(TableView), new PropertyMetadata(null));
+
         private sealed class SortState
         {
             public int Column = -1;
             public bool Descending;
+        }
+
+        // Drag and drop reordering of rows (import descriptor move).
+        private sealed class ReorderState
+        {
+            public TableRow? Row;
+            public Point StartPoint;
+            public bool Dragging;
         }
 
         public static TableViewModel? GetTable(
@@ -88,6 +100,12 @@ namespace CoffeeExplorer.Controls
                 VirtualizingPanel.SetVirtualizationMode(list, VirtualizationMode.Recycling);
                 ScrollViewer.SetCanContentScroll(list, true);
                 list.SelectionMode = SelectionMode.Extended;
+                list.SetValue(ReorderProperty, new ReorderState());
+                list.PreviewMouseLeftButtonDown += OnReorderMouseDown;
+                list.PreviewMouseLeftButtonUp += OnReorderMouseUp;
+                list.PreviewMouseMove += OnReorderMouseMove;
+                list.DragOver += OnReorderDragOver;
+                list.Drop += OnReorderDrop;
             }
 
             var table = arguments.NewValue as TableViewModel;
@@ -537,6 +555,169 @@ namespace CoffeeExplorer.Controls
                     item.ToolTip = command.ToolTip;
                     ToolTipService.SetShowOnDisabled(item, true);
                     menu.Items.Add(item);
+                }
+            }
+        }
+
+        // Drag and drop reordering of lists whose view can move rows (currently the import directory).
+
+        private const string ROW_FORMAT = "CoffeeExplorer.TableRow";
+
+        private static bool CanReorder(
+            ListView list
+        )
+        {
+            NodeViewModel? node = GetNode(list);
+            TableViewModel? table = GetTable(list);
+
+            if (node == null || table == null || table != node.List || table.Rows.Count < 2 || node.IsReadOnly)
+            {
+                return false;
+            }
+
+            // Only the natural order matches the order in the file, a sorted view would move to the wrong place.
+            if (list.GetValue(SortProperty) is SortState sort && sort.Column != -1)
+            {
+                return false;
+            }
+
+            return node.Commands.Any(command => command.Data.Id == "imports.move_up" || command.Data.Id == "imports.move_down");
+        }
+
+        private static void OnReorderMouseDown(
+            object sender,
+            MouseButtonEventArgs arguments
+        )
+        {
+            var list = (ListView)sender;
+            var state = (ReorderState)list.GetValue(ReorderProperty)!;
+            state.Row = null;
+            state.Dragging = false;
+
+            if (!CanReorder(list))
+            {
+                list.AllowDrop = false;
+                return;
+            }
+
+            if (ItemsControl.ContainerFromElement(list, arguments.OriginalSource as DependencyObject) is ListViewItem container && container.Content is TableRow row)
+            {
+                state.Row = row;
+                state.StartPoint = arguments.GetPosition(list);
+                list.AllowDrop = true;
+            }
+        }
+
+        private static void OnReorderMouseUp(
+            object sender,
+            MouseButtonEventArgs arguments
+        )
+        {
+            var list = (ListView)sender;
+            var state = (ReorderState)list.GetValue(ReorderProperty)!;
+            state.Row = null;
+            list.AllowDrop = false;
+        }
+
+        private static void OnReorderMouseMove(
+            object sender,
+            MouseEventArgs arguments
+        )
+        {
+            var list = (ListView)sender;
+            var state = (ReorderState)list.GetValue(ReorderProperty)!;
+
+            if (state.Row == null || state.Dragging || arguments.LeftButton != MouseButtonState.Pressed)
+            {
+                return;
+            }
+
+            Point position = arguments.GetPosition(list);
+
+            if (Math.Abs(position.X - state.StartPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
+                Math.Abs(position.Y - state.StartPoint.Y) < SystemParameters.MinimumVerticalDragDistance)
+            {
+                return;
+            }
+
+            state.Dragging = true;
+            list.AllowDrop = true;
+
+            try
+            {
+                DragDrop.DoDragDrop(list, new DataObject(ROW_FORMAT, state.Row), DragDropEffects.Move);
+            }
+            finally
+            {
+                state.Dragging = false;
+                state.Row = null;
+                list.AllowDrop = false;
+            }
+        }
+
+        private static void OnReorderDragOver(
+            object sender,
+            DragEventArgs arguments
+        )
+        {
+            arguments.Handled = true;
+            arguments.Effects = CanReorder((ListView)sender) && arguments.Data.GetDataPresent(ROW_FORMAT) ? DragDropEffects.Move : DragDropEffects.None;
+        }
+
+        private static void OnReorderDrop(
+            object sender,
+            DragEventArgs arguments
+        )
+        {
+            arguments.Handled = true;
+            var list = (ListView)sender;
+
+            if (GetNode(list) is not NodeViewModel node || GetTable(list) is not TableViewModel table ||
+                !CanReorder(list) || arguments.Data.GetData(ROW_FORMAT) is not TableRow dragged)
+            {
+                return;
+            }
+
+            int count = table.Rows.Count;
+            int target;
+
+            if (ItemsControl.ContainerFromElement(list, arguments.OriginalSource as DependencyObject) is ListViewItem container && container.Content is TableRow over)
+            {
+                // Upper half of the hovered row: take its place, lower half: below it.
+                Point position = arguments.GetPosition(container);
+                target = over.Index + (position.Y > container.ActualHeight / 2 ? 1 : 0);
+            }
+            else
+            {
+                target = arguments.GetPosition(list).Y < list.ActualHeight / 2 ? 0 : count;
+            }
+
+            // The dragged row leaves its own position, the indexes behind it shift up by one.
+            if (target > dragged.Index)
+            {
+                --target;
+            }
+
+            if (target < 0 || target >= count || target == dragged.Index)
+            {
+                return;
+            }
+
+            CommandAnswer? answer = node.Owner.Execute(new Dictionary<string, object>
+            {
+                ["command"] = "imports.move",
+                ["index"] = dragged.Index,
+                ["target"] = target
+            });
+
+            // The view was rebuilt, keep the moved descriptor selected.
+            if (answer != null && node.Owner.Content is NodeViewModel current && current.List != null)
+            {
+                TableRow? moved = current.List.Rows.FirstOrDefault(row => row.Index == target);
+
+                if (moved != null)
+                {
+                    current.List.SelectedRow = moved;
                 }
             }
         }
